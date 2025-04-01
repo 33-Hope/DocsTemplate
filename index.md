@@ -303,170 +303,6 @@ To get started with creating a site, simply:
 
 - net.apply(xxx)  表示将net中的所有block都传入xxx函数遍历一遍，具体干啥取决于xxx函数的功能。类似于for loop的功能
 
-## 6.卷积神经网络
-
-### LeNet神经网络
-
-- 先使用卷积层来学习图片空间信息，再用池化层降低图片敏感度，然后使用全连接层来转换到类别空间得到实类
-
-### AlexNet
-
-1. 计算公式为：![image-20250323153617170](images/image-20250323153617170.png)
-
-2. <font color='yellow'>当不想让 长宽 变化的时候</font>，可以设置为则stride = 1，padding = (kernel_size - 1) / 2。当然不是绝对这么写的，可以根据上面的公式来。
-
-3. <font color='pink'>dropout参数为0.5意味着什么</font>？
-
-   1. `Dropout` 是一种用于防止神经网络过拟合的技术。Dropout(0.5)` 时，括号内的 `0.5` 表示的是丢弃概率，即在训练过程中，每个神经元（不包括 bias）都有 50% 的概率被**暂时**从网络中移除或“丢弃”。
-
-      具体来说：
-
-      - **0.5 的含义**：表示在网络的正向传播过程中，每个神经元有 50% 的概率被设置为零（**即暂时从网络中移除**），**同时其权重也不参与该次更新**。这意味着每次进行前向和后向传播时，网络实际上都在使用不同的架构，从而有效地强制模型学习到更加鲁棒的特征，并减少对特定神经元的依赖。
-
-      - **作用**：通过随机地“丢弃”一部分神经元，可以打破一些复杂的共适应关系（co-adaptations），使得模型不会过度依赖于某些特定的神经元，进而提高模型的泛化能力，减少过拟合。
-
-      - **仅在训练阶段应用**：需要注意的是，Dropout 通常只在模型的训练阶段启用，在评估或测试阶段则会关闭，以确保模型能够利用全部的学习能力做出预测。
-
-4. <font color='orange'>当池化层将输入层的长宽都减半，参数需要满足什么要求？</font>
-
-   - 池化窗口大小（kernel size）设置为 \(2 * 2\)，
-   - 步长（stride）设置为2，
-   - 填充（padding）通常设置为0（除非有特定需求）。
-
-   这样的配置能够有效地将输入层的空间维度减半，同时保留重要的特征信息。
-
-5. 那么只有卷积层、全连接层有参数需要学习。池化层、dropout、激活层都不用学习参数。
-
-   1. 卷积层学习的是核中的每个元素的内容，也成为权重
-   2. 全连接层学习的是F = Wx +b，是权重矩阵W和偏置向量b。
-
-6. <font color='pink'>batch size= 128 代表什么意思</font>
-
-   1. 如果你有1024个训练样本，并且设置了 `batch_size = 128`，那么整个数据集将会被分成 \(1024 / 128 = 8\) 个批次。每个epoch（遍历整个数据集一次）期间，**模型将会更新权重8次**。具体来说，这意味着在训练模型时，算法会一次性处理128个样本，然后计算这些样本的平均损失，并根据这个平均损失来更新模型的权重。
-
-7. kernel_size=3, strides=1, padding=1
-
-   1. 这种组合，长宽是不变的。
-
-8. 用maxpooling这么搞的最大的原因是，可以输出比较大的值，进而得到比较大的梯度，更好计算
-
-9. ![image-20250319162710697](images/image-20250319162710697.png)
-
-​		![image-20250319171306447](images/image-20250319171306447.png)
-
-### NinNet
-
-用卷积层代替全连接层。思想是降低参数，降低运算速率。但是现在用的不多。思想挺有意思。只要是用在GoogleLeNet中。
-
-### GoogleLeNet
-
-和LeNet没关系哈哈哈。是之前所有Net的大杂烩
-
-1. 白色的可以看做是对通道数进行变化，蓝色的是抽取通道中的空间信息的。Inception不改变高宽，只改变通道数。![image-20250324144557429](images/image-20250324144557429.png)
-
-2. 整体的模型其实就是多个Inception搭建起来的。宽高减半叫一个stage
-   1. 最后Stage5之后并不需要强制要求通道数和要求的类别数相同。因为可以通过一个Global AvgPool，通过一个FC进行映射到最终的要求类别数量上即可。
-   2. ![image-20250324145136125](images/image-20250324145136125.png)
-
-### 批量归一化
-
-也是一种加入扰动项的手段。注意，只会加速收敛的速度，对于模型本身是不影响的。一般不和Dropput一起用。
-
-可以观看以下up讲的内容：https://www.bilibili.com/video/BV12d4y1f74C
-
-### ResNet
-
-类似于并行＋，一般用ResNet 34多一点。已经有一些定好的模块，可以直接往上加。![image-20250328143934063](images/image-20250328143934063.png)
-
-![image-20250328143947953](images/image-20250328143947953.png)
-
-上述图里的一个Block中有两个残差块，这一点在代码中是这么设计的。
-
-#### 问题
-
-1. 训练的Acc是不是永远大于测试的ACC？
-   1. 答：不是的。如果你对训练数据进行了数据增强，那么你的训练精度可能会比较低。但是你的测试集中没有进行训练增强，那么得到的结果，测试精度会比训练的精度高的。
-
-
-
-## 7.循环神经网络
-
-对前面的数据进行分析，然后预测回归，叫做自回归。
-
-![image-20250330152016076](images/image-20250330152016076.png)
-
-现在核心就是如何算这个f(x1,x2)，还有如何算p
-
-### GRU
-
-
-
-
-
-### LSTM
-
-- h:历史，x:目前，h+x:现状，f:根据现状判断是否遗忘，_c:根据现状发觉重点记下来
-- ![image-20250306150533648](images/image-20250306150533648.png)
-- ![image-20250306150435527](images/image-20250306150435527.png)
-- 这个视频讲清了3样东西：（1）Ct波浪线就是RNN里计算ht的东西（2）W[ht-1,xt]里的W实际时两个参数矩阵（3）tanh的作用，尤其是第2个tanh的作用
-- ![image-20250306153333597](images/image-20250306153333597.png)
-
-
-
-## 13计算机视觉
-
-### 数据增强
-
-训练时用
-
-一般是在线生成，读取的时候还是读原始图片，然后随机选择不同的方式进行数据的增强。方法有：翻转、切割、颜色、。。。。
-
-## GAN
-
-- 生成模型：造假的人，造假币
-- 判别模型：警察，找出来假币
-- 最后希望：生成模型赢。
-
-1. 之前的工作总想要找出一个分布函数，找出似然函数分布。而GAN是换一种思路，想找一个模型来近似这个分布。
-
-   1. ![image-20250223111605863](images/image-20250223111605863.png)
-
-   - 对于公式**Log(1-D(G(z)))** , 目标是 minimize **log**，所以D（G（z))为1最好，也就是D每次判断都是正确的，这就是让辨别器D尽量的犯错。G(z)是Pg生成的图片，D(G(z))是D觉得Pg生成的图片是真实的概率，D觉得越真，式子整体结果越小。
-   - 对于下面的公式，有两种解释
-     - 如果还是看不懂，可以看这篇论文后面的 Algorithm1，
-     - 先看maxD:当判别器D可以完美的判别时，log1+log（1-0） = 0，如果犯错，那就是log(<1)+log(1- >0) = 负数，所以目标是max 
-     - 再看minG:等式右边的第一项没有G，第二项有G。min G，是固定D 选择G 使V最小，当G可以最小化真实样本与生成样本的差异时（即D尽量犯错），V最小
-     - 总结：D与G相互对抗。D使得尽量将数据分开，G使得尽量让生成数据使D分不开。<font color='yellow'>D目标是尽量完美，使得V最大；G目标是尽量使D犯错，使得V最小。并且我们最终要让G胜利，通过这种对抗中进步，能使得G的对手越来越厉害，相应的，G也会越来越厉害。</font>
-
-2. GAN的收敛是相当不稳定的。需要D和G这两个最好是旗鼓相当。李沐老师举得例子:如果警察D太强，直接将造假者G一锅端，那G就不会更新了；如果警察D太差，G都不愿意改进工艺，那G的水平也会很差。后续有一些工作是处理GAN的收敛的。
-
-   1. 有一个好玩的就是。
-      1. ![image-20250223114803452](images/image-20250223114803452.png)判断验证集和测试集是不是同一个分布，可以用一个二分类器，看能不能分开。如果每次都是1/2，那说明是同一个分布。如果要迁移到另一个新的环境中，也可以判断一下是否可以分开。如果该二分类器分不开数据，则说明是来自不同分布。
-   2. 当已经求得了D时，在求G，一定是Pdata = Pg  这是通过KL散度进行证明的。所以GAN使用了对称的散度。
-
-3. 后续在GAN的基础上又有了许多新的模型，这里学习一种叫做Cycle GAN的
-
-   1. ![image-20250223150206446](images/image-20250223150206446.png)
-
-   2. 这里的Generter，橙色的Y->X就是一个，蓝色X->Y也就是一个。这两个G要合力去minimize那个红线之间的loss。同时也希望可以骗过Dx和Dy。
-
-
-
-
-# 模板
-
-```
-<font color='yellow'>黄色</font>
-```
-
-```
-<font color='pink'>粉色色</font>
-```
-
-```
-<font color='orange'>橘色</font>
-```
-
 
 
    # 实验步骤
@@ -644,3 +480,21 @@ If you want to maintain your docs in the `docs` directory of an existing project
 [Jekyll]: https://jekyllrb.com
 [GitHub Pages / Actions workflow]: https://github.blog/changelog/2022-07-27-github-pages-custom-github-actions-workflows-beta/
 [use this template]: https://github.com/just-the-docs/just-the-docs-template/generate
+
+[^2]: [It can take up to 10 minutes for changes to your site to publish after you push the changes to GitHub](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/creating-a-github-pages-site-with-jekyll#creating-your-site).
+
+[Jekyll]: https://jekyllrb.com
+[Markdown]: https://daringfireball.net/projects/markdown/
+[Liquid]: https://github.com/Shopify/liquid/wiki
+[Front matter]: https://jekyllrb.com/docs/front-matter/
+[Jekyll configuration]: https://jekyllrb.com/docs/configuration/
+[source file for this page]: https://github.com/just-the-docs/just-the-docs/blob/main/index.md
+[Just the Docs Template]: https://just-the-docs.github.io/just-the-docs-template/
+[Just the Docs]: https://just-the-docs.com
+[Just the Docs repo]: https://github.com/just-the-docs/just-the-docs
+[Just the Docs README]: https://github.com/just-the-docs/just-the-docs/blob/main/README.md
+[GitHub Pages]: https://pages.github.com/
+[Template README]: https://github.com/just-the-docs/just-the-docs-template/blob/main/README.md
+[GitHub Pages / Actions workflow]: https://github.blog/changelog/2022-07-27-github-pages-custom-github-actions-workflows-beta/
+[customize]: {% link docs/customization.md %}
+[use the template]: https://github.com/just-the-docs/just-the-docs-template/generate
