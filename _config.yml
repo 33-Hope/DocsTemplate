@@ -4,5 +4,8 @@ theme: just-the-docs
 
 url: https://33-Hope.github.io/DocsTemplate
 
+# Set a path/url to a logo that will be displayed instead of the title
+logo: "/assets/images/zhongguoshiyou.png"
+
 aux_links:
   Template Repository: https://github.com/33-Hope/DocsTemplate
