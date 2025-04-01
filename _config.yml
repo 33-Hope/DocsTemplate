@@ -1,7 +1,7 @@
 title: LuHopeTest
 description: This is a just test for docs
 theme: just-the-docs
-
+nav_enabled: true
 url: https://33-Hope.github.io/DocsTemplate
 
 # Set a path/url to a logo that will be displayed instead of the title
